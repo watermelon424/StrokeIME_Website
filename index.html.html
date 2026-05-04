@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>筆劃輸入法｜資工專題介紹</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 45%, #ecfeff 100%);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1d4ed8;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      font-size: 15px;
+      color: #475569;
+    }
+
+    .nav-links a:hover {
+      color: #1d4ed8;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 88px 24px 70px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 48px;
+      line-height: 1.18;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #475569;
+      margin-bottom: 28px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 22px;
+      border-radius: 14px;
+      font-weight: 800;
+      transition: 0.25s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #2563eb;
+      border-color: #bfdbfe;
+    }
+
+    .btn-secondary:hover {
+      background: #eff6ff;
+    }
+
+    .hero-card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+      border: 1px solid #e5e7eb;
+    }
+
+    .keyboard-demo {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .key {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px 10px;
+      text-align: center;
+      box-shadow: inset 0 -3px 0 #e2e8f0;
+    }
+
+    .key strong {
+      display: block;
+      font-size: 26px;
+      color: #1d4ed8;
+    }
+
+    .key span {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .demo-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 20px;
+      padding: 18px;
+      font-family: Consolas, monospace;
+    }
+
+    .demo-box .input {
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 24px;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .section-title h2 {
+      font-size: 34px;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+
+    .section-title p {
+      color: #64748b;
+      font-size: 17px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 26px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    .card h3 {
+      font-size: 21px;
+      color: #1e3a8a;
+      margin-bottom: 12px;
+    }
+
+    .card p,
+    .card li {
+      color: #475569;
+      font-size: 16px;
+    }
+
+    .card ul {
+      padding-left: 20px;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .feature-item {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      border-left: 6px solid #2563eb;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
+    }
+
+    .feature-item h3 {
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background: #eff6ff;
+      color: #1e3a8a;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .download {
+      background: linear-gradient(135deg, #1d4ed8, #0f172a);
+      color: white;
+      border-radius: 32px;
+      padding: 46px 32px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+    }
+
+    .download h2 {
+      font-size: 34px;
+      margin-bottom: 14px;
+    }
+
+    .download p {
+      color: #dbeafe;
+      margin-bottom: 26px;
+      font-size: 17px;
+    }
+
+    .download .btn {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 34px 20px;
+      color: #64748b;
+      border-top: 1px solid #e5e7eb;
+      background: white;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 58px;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+
+      .cards,
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="logo">筆劃輸入法 StrokeIME</div>
+      <div class="nav-links">
+        <a href="#about">專題介紹</a>
+        <a href="#features">功能特色</a>
+        <a href="#tech">使用技術</a>
+        <a href="#download">下載</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <span class="badge">資工專題展示</span>
+      <h1>以中文筆劃為核心的<br />簡易輸入法系統</h1>
+      <p>
+        本專題設計一套以「橫、豎、撇、點、折」為基礎的中文輸入法，
+        讓使用者透過簡單鍵盤按鍵輸入筆劃，快速查找並輸入中文字。
+      </p>
+      <div class="btn-group">
+        <a class="btn btn-primary" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">下載 StrokeIME Demo</a>
+        <a class="btn btn-secondary" href="#features">查看功能</a>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="keyboard-demo">
+        <div class="key"><strong>u</strong><span>一</span></div>
+        <div class="key"><strong>i</strong><span>丨</span></div>
+        <div class="key"><strong>o</strong><span>丿</span></div>
+        <div class="key"><strong>j</strong><span>丶</span></div>
+        <div class="key"><strong>k</strong><span>乛</span></div>
+        <div class="key"><strong>l</strong><span>萬用字 *</span></div>
+      </div>
+      <div class="demo-box">
+        輸入：<span class="input">uio</span><br />
+        代表：一 丨 丿<br />
+        系統：顯示符合筆劃順序的候選字
+      </div>
+    </div>
+  </header>
+
+  <section id="about">
+    <div class="section-title">
+      <h2>專題介紹</h2>
+      <p>降低中文輸入門檻，讓使用者依照筆劃順序完成中文輸入。</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3>專題目標</h3>
+        <p>建立一套專屬中文筆劃輸入法，讓使用者不用依賴注音、拼音或倉頡字根，也能透過中文字形進行輸入。</p>
+      </div>
+      <div class="card">
+        <h3>核心概念</h3>
+        <p>將中文字的基本筆劃轉換成鍵盤按鍵，輸入後由系統比對字庫，列出符合筆劃條件的候選中文字。</p>
+      </div>
+      <div class="card">
+        <h3>應用價值</h3>
+        <p>適合不熟悉注音或拼音的使用者，也可作為中文教育、查字工具與簡易輸入輔助系統使用。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="section-title">
+      <h2>功能特色</h2>
+      <p>以實用性與操作便利性為主要設計方向。</p>
+    </div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <h3>筆劃輸入</h3>
+        <p>使用 u、i、o、j、k 對應五種基本筆劃，依照中文字書寫順序輸入即可查找文字。</p>
+      </div>
+      <div class="feature-item">
+        <h3>萬用字模糊搜尋</h3>
+        <p>使用 l 作為萬用字元，當使用者不確定某一筆時，可用 l 代替未知筆劃。</p>
+      </div>
+      <div class="feature-item">
+        <h3>候選字顯示</h3>
+        <p>系統會根據輸入的筆劃序列，列出所有符合條件的中文字候選清單。</p>
+      </div>
+      <div class="feature-item">
+        <h3>快速選字與翻頁</h3>
+        <p>候選字可使用數字鍵選取，也能透過上下鍵移動選擇或翻頁，提高輸入效率。</p>
+      </div>
+      <div class="feature-item">
+        <h3>刪除已選文字</h3>
+        <p>支援 Ctrl + Backspace 刪除已選好的中文字，方便使用者修正輸入錯誤。</p>
+      </div>
+      <div class="feature-item">
+        <h3>電腦端試用</h3>
+        <p>目前已完成輸入邏輯，並準備將輸入法放到電腦環境中進行實際測試。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tech">
+    <div class="section-title">
+      <h2>使用技術</h2>
+      <p>本專題結合字串比對、字庫設計、鍵盤事件處理與使用者介面設計。</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>技術項目</th>
+            <th>說明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中文筆劃編碼</td>
+            <td>將中文字的筆劃順序轉換成 u、i、o、j、k、l 等鍵盤編碼。</td>
+          </tr>
+          <tr>
+            <td>字庫資料比對</td>
+            <td>根據使用者輸入的筆劃序列，與字庫中的中文字筆劃資料進行比對。</td>
+          </tr>
+          <tr>
+            <td>模糊搜尋</td>
+            <td>透過萬用字元 l 代替未知筆劃，提升查找候選字的彈性。</td>
+          </tr>
+          <tr>
+            <td>候選字排序</td>
+            <td>候選字依照指定順序顯示，使用者可透過數字鍵或方向鍵選取。</td>
+          </tr>
+          <tr>
+            <td>鍵盤事件處理</td>
+            <td>處理輸入、選字、翻頁與刪除等操作，提升整體使用流暢度。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>操作方式</h2>
+      <p>簡單記住六個按鍵，即可開始使用。</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3>1. 輸入筆劃</h3>
+        <p>依照中文字的書寫順序輸入對應按鍵，例如「二」可輸入 uu。</p>
+      </div>
+      <div class="card">
+        <h3>2. 查看候選字</h3>
+        <p>系統會顯示符合筆劃條件的中文字，讓使用者選擇想輸入的字。</p>
+      </div>
+      <div class="card">
+        <h3>3. 選字完成輸入</h3>
+        <p>可使用數字鍵快速選字，也可使用方向鍵移動選擇與翻頁。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>團隊分工</h2>
+      <p>專題由組員分工完成程式、邏輯、簡報、美術與網頁設計。</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>組員</th>
+            <th>負責項目</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>謝家華</td>
+            <td>行程規劃、註冊電腦程式設計、專題發起人</td>
+          </tr>
+          <tr>
+            <td>朱俊祥</td>
+            <td>入字邏輯的程式設計</td>
+          </tr>
+          <tr>
+            <td>曾梓翔</td>
+            <td>PPT 及海報設計</td>
+          </tr>
+          <tr>
+            <td>袁靖傑</td>
+            <td>網頁設計、網頁介紹</td>
+          </tr>
+          <tr>
+            <td>鄭軒濬</td>
+            <td>網頁設計、網頁介紹、網頁撰寫</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="download">
+      <h2>下載專題 Demo</h2>
+      <p>點擊下方按鈕即可下載 StrokeIME Demo 壓縮檔。</p>
+      <a class="btn" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">立即下載 StrokeIMEDemo.zip</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 筆劃輸入法 StrokeIME｜淡江大學資工專題展示</p>
+  </footer>
+</body>
+</html>
