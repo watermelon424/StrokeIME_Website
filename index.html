@@ -1886,10 +1886,147 @@
       max-width: 860px;
     }
 
+
+    /* ===== 預設下拉式網站模式 ===== */
+    .mode-toggle {
+      font: inherit;
+      color: #fffaf0;
+      background: rgba(159, 18, 57, 0.92);
+      border: 1px solid rgba(255,255,255,0.45);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 900;
+      transition: 0.22s ease;
+    }
+
+    .mode-toggle:hover {
+      background: rgba(190, 24, 93, 0.95);
+      transform: translateY(-1px);
+    }
+
+    body.scroll-mode .app {
+      display: none;
+    }
+
+    body.book-mode .scroll-site {
+      display: none;
+    }
+
+    body.scroll-mode .scroll-site {
+      display: block;
+    }
+
+    .scroll-site {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 112px 0 70px;
+    }
+
+    .scroll-panel {
+      position: relative;
+      margin: 0 auto 42px;
+      padding: clamp(30px, 5vw, 56px);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        radial-gradient(circle at 24% 18%, rgba(0,0,0,0.055), transparent 30%),
+        linear-gradient(135deg, var(--paper-light), var(--paper));
+      background-size: 52px 52px, 52px 52px, 100% 100%, 100% 100%;
+      border: 1px solid rgba(255,250,240,0.86);
+      border-radius: 22px;
+      box-shadow:
+        0 28px 70px rgba(0,0,0,0.18),
+        inset 0 0 0 7px rgba(255,255,255,0.22),
+        inset 0 0 45px rgba(0,0,0,0.065);
+      scroll-margin-top: 96px;
+      overflow: visible;
+    }
+
+    .scroll-panel::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(0,0,0,0.13);
+      pointer-events: none;
+      border-radius: 14px;
+    }
+
+    .scroll-hero {
+      min-height: calc(100vh - 150px);
+      display: grid;
+      align-content: center;
+    }
+
+    .scroll-hero h1 {
+      max-width: 760px;
+    }
+
+    .scroll-hero p {
+      max-width: 760px;
+      font-size: 18px;
+    }
+
+    .scroll-seal {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      background: var(--seal);
+      color: #fff;
+      border: 3px solid rgba(255,255,255,0.86);
+      font-weight: 900;
+      font-size: 26px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.2);
+    }
+
+    .scroll-kicker {
+      font-family: Georgia, serif;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: rgba(0,0,0,0.55);
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .scroll-preview {
+      margin-top: 26px;
+      max-width: 760px;
+    }
+
+    .scroll-wild-flow {
+      max-width: 820px;
+    }
+
+    body.book-mode .app {
+      display: grid;
+    }
+
+    body.book-mode.opened .app,
+    body.book-mode .app {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    @media (max-width: 920px) {
+      .scroll-site {
+        width: min(100% - 24px, 920px);
+        padding-top: 92px;
+      }
+
+      .scroll-panel {
+        padding: 28px 20px;
+      }
+
+      .mode-toggle {
+        display: inline-block;
+      }
+    }
+
   </style>
 </head>
 
-<body>
+<body class="scroll-mode">
   <div class="ink-bg" aria-hidden="true">
     <span>一</span>
     <span>丨</span>
@@ -1929,9 +2066,200 @@
         <button data-go="6">技術</button>
         <button data-go="7">影片</button>
         <a class="nav-download" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">下載</a>
+        <button id="modeToggle" class="mode-toggle" type="button">切換書本模式</button>
       </div>
     </div>
   </nav>
+
+
+  <main class="scroll-site" id="scrollSite">
+    <section class="scroll-hero scroll-panel" id="scroll-home">
+      <div class="scroll-seal">筆</div>
+      <div class="scroll-kicker">StrokeIME 筆劃輸入法</div>
+      <h1><span class="brush-title">用筆劃，打出中文</span></h1>
+      <p>
+        StrokeIME 是一套以「橫、豎、撇、點、折」為核心的中文筆劃輸入法。
+        下拉式網站版本保留習字帖風格，同時讓訪客可以更直覺地瀏覽專題內容。
+      </p>
+      <div class="btn-group">
+        <a class="btn" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">下載 Demo</a>
+        <a class="btn secondary" href="#scroll-video">觀看影片</a>
+      </div>
+      <div class="calligraphy-window scroll-preview">
+        <div class="window-head">
+          <span>StrokeIME Input Preview</span>
+          <span>墨跡模式</span>
+        </div>
+        <div class="ime-line">
+          <span>輸入碼</span>
+          <strong class="typing-code"></strong>
+        </div>
+        <div class="ime-line">
+          <span>筆劃</span>
+          <strong class="typing-strokes"></strong>
+        </div>
+        <div class="candidate-strip">
+          <b>0 木</b>
+          <b>9 才</b>
+          <b>8 大</b>
+          <b>7 不</b>
+          <b>6 王</b>
+        </div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-about">
+      <span class="seal">介紹</span>
+      <div class="eyebrow">About Project</div>
+      <h2><span class="brush-title">專題介紹</span></h2>
+      <div class="grid-3">
+        <div class="ink-card">
+          <div class="ink-icon">目</div>
+          <h3>專題目標</h3>
+          <p>建立一套專屬中文筆劃輸入法，讓使用者透過簡單按鍵輸入筆劃，再由系統找出符合條件的中文字。</p>
+        </div>
+        <div class="ink-card">
+          <div class="ink-icon">劃</div>
+          <h3>核心概念</h3>
+          <p>將中文字拆解為筆劃編碼，透過字串比對與候選字清單，完成從筆劃輸入到中文字輸出的流程。</p>
+        </div>
+        <div class="ink-card">
+          <div class="ink-icon">用</div>
+          <h3>應用價值</h3>
+          <p>可應用於中文教育、查字工具與輸入輔助系統，也適合不熟悉發音輸入法的使用者使用。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-decompose">
+      <span class="seal">拆解</span>
+      <div class="eyebrow">Character Decomposition</div>
+      <h2><span class="brush-title">中文字筆劃拆解</span></h2>
+      <div class="character-demo">
+        <div class="brush-character">
+          <div class="grid-lines"></div>
+          <div class="draw-character" aria-label="木字筆劃動畫">
+            <span class="stroke-line line-1"></span>
+            <span class="stroke-line line-2"></span>
+            <span class="stroke-line line-3"></span>
+            <span class="stroke-line line-4"></span>
+          </div>
+        </div>
+        <div class="decode-panel">
+          <div class="decode-row"><span>中文字</span><code>木</code></div>
+          <div class="decode-row"><span>筆劃拆解</span><code>一 丨 丿 丶</code></div>
+          <div class="decode-row"><span>按鍵對應</span><code>u i o j</code></div>
+          <div class="decode-row"><span>系統結果</span><code>顯示候選字</code></div>
+          <p>以習字帖方格呈現中文字拆解，讓使用者直覺理解：字形可以轉換成筆劃，筆劃可以轉換成鍵盤輸入。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-flow">
+      <span class="seal">流程</span>
+      <div class="eyebrow">System Flow</div>
+      <h2><span class="brush-title">系統流程</span></h2>
+      <div class="flow-list">
+        <div class="flow-step"><b>一</b><div><h3>輸入筆劃</h3><p>使用者輸入 u、i、o、j、k 或 l。</p></div></div>
+        <div class="flow-step"><b>二</b><div><h3>轉換編碼</h3><p>程式將按鍵轉換為中文筆劃序列。</p></div></div>
+        <div class="flow-step"><b>三</b><div><h3>比對字庫</h3><p>根據輸入序列搜尋符合條件的中文字。</p></div></div>
+        <div class="flow-step"><b>四</b><div><h3>候選選字</h3><p>顯示候選字，使用者透過數字鍵或方向鍵選取。</p></div></div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-wildcard">
+      <span class="seal">萬用</span>
+      <div class="eyebrow">Wildcard Search</div>
+      <h2><span class="brush-title">不知道完整筆劃？<br />用 l 代替未知筆劃</span></h2>
+      <p>
+        萬用字是 StrokeIME 的特色功能。當使用者只記得部分筆劃時，可以用 l 代表任意筆劃，
+        系統仍能列出可能候選字。
+      </p>
+      <div class="wild-flow scroll-wild-flow">
+        <div><span>原本完整筆劃</span><code>u u u</code></div>
+        <div><span>不確定第二筆</span><code>u l u</code></div>
+        <div><span>系統解讀</span><code>橫 + 任意 + 橫</code></div>
+        <div><span>結果</span><code>列出符合條件的候選字</code></div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-features">
+      <span class="seal">功能</span>
+      <div class="eyebrow">Features</div>
+      <h2><span class="brush-title">功能特色</span></h2>
+      <div class="feature-list">
+        <div class="feature-item"><h3>筆劃輸入</h3><p>使用 u、i、o、j、k 對應五種基本筆劃，依照中文字書寫順序輸入即可查找文字。</p></div>
+        <div class="feature-item"><h3>萬用字模糊搜尋</h3><p>使用 l 作為萬用字元，當使用者不確定某一筆時，可用 l 代替未知筆劃。</p></div>
+        <div class="feature-item"><h3>候選字顯示</h3><p>系統會根據輸入的筆劃序列，列出所有符合條件的中文字候選清單。</p></div>
+        <div class="feature-item"><h3>快速選字與翻頁</h3><p>候選字可使用數字鍵選取，也能透過上下鍵移動選擇或翻頁，提高輸入效率。</p></div>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-tech">
+      <span class="seal">技術</span>
+      <div class="eyebrow">Technology</div>
+      <h2><span class="brush-title">使用技術</span></h2>
+      <div class="table-wrap">
+        <table class="tech-table">
+          <thead>
+            <tr><th>技術項目</th><th>說明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>中文筆劃編碼</td><td>將中文字的筆劃順序轉換成 u、i、o、j、k、l 等鍵盤編碼。</td></tr>
+            <tr><td>字庫資料比對</td><td>根據使用者輸入的筆劃序列，與字庫中的中文字筆劃資料進行比對。</td></tr>
+            <tr><td>模糊搜尋</td><td>透過萬用字元 l 代替未知筆劃，提升查找候選字的彈性。</td></tr>
+            <tr><td>候選字排序</td><td>候選字依照 0、9、8…2、1 的順序顯示，使用者可透過數字鍵或方向鍵選取。</td></tr>
+            <tr><td>鍵盤事件處理</td><td>處理輸入、選字、翻頁與刪除等操作，提升整體使用流暢度。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-video">
+      <span class="seal">影片</span>
+      <div class="eyebrow">Demo Video</div>
+      <h2><span class="brush-title">專題展示影片</span></h2>
+      <p>影片可直接在網站中觀看，也可以點擊按鈕開啟 YouTube 原始連結。</p>
+      <div class="btn-group">
+        <a class="btn" href="https://youtu.be/j26vEbRiA9M" target="_blank" rel="noopener">在 YouTube 開啟</a>
+      </div>
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube.com/embed/j26vEbRiA9M"
+          title="筆劃輸入法專題展示影片"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </section>
+
+    <section class="scroll-panel" id="scroll-download">
+      <span class="seal">下載</span>
+      <div class="eyebrow">Download & Team</div>
+      <h2><span class="brush-title">下載與團隊分工</span></h2>
+      <div class="table-wrap">
+        <table class="team-table">
+          <thead>
+            <tr><th>組員</th><th>負責項目</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>謝家華</td><td>行程規劃、註冊電腦程式設計、專題發起人</td></tr>
+            <tr><td>朱俊祥</td><td>入字邏輯的程式設計</td></tr>
+            <tr><td>曾梓翔</td><td>PPT 及海報設計、美術監督</td></tr>
+            <tr><td>袁靖傑</td><td>網頁設計、網頁介紹</td></tr>
+            <tr><td>鄭軒濬</td><td>網頁設計、網頁介紹、網頁撰寫</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="download-panel">
+        <h3>下載 StrokeIME Demo</h3>
+        <p>點擊下方按鈕即可下載 StrokeIME Demo 壓縮檔，進行電腦端試用與展示。</p>
+        <br />
+        <a class="btn" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">立即下載 StrokeIMEDemo.zip</a>
+      </div>
+    </section>
+  </main>
+
 
   <main class="app">
     <div class="book-stage not-opened" id="bookStage">
@@ -2208,6 +2536,7 @@
     const openScreen = document.getElementById("openScreen");
     const openingBook = document.getElementById("openingBook");
     const homeBtn = document.getElementById("homeBtn");
+    const modeToggle = document.getElementById("modeToggle");
     const inkSplashLayer = document.getElementById("inkSplashLayer");
     const floatingStrokes = document.querySelectorAll(".ink-bg span");
     const bookStage = document.getElementById("bookStage");
@@ -2489,16 +2818,74 @@
       stopStrokeDrag();
     });
 
+
+    const scrollTargets = [
+      "scroll-home",
+      "scroll-about",
+      "scroll-decompose",
+      "scroll-flow",
+      "scroll-wildcard",
+      "scroll-features",
+      "scroll-tech",
+      "scroll-video",
+      "scroll-download"
+    ];
+
+    function isScrollMode() {
+      return document.body.classList.contains("scroll-mode");
+    }
+
+    function switchToBookMode() {
+      document.body.classList.remove("scroll-mode");
+      document.body.classList.add("book-mode");
+      if (modeToggle) modeToggle.textContent = "切換下拉模式";
+      renderPages();
+      syncBookHeight();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function switchToScrollMode() {
+      document.body.classList.remove("book-mode", "opened", "opening");
+      document.body.classList.add("scroll-mode");
+      if (bookStage) bookStage.classList.add("not-opened");
+      if (modeToggle) modeToggle.textContent = "切換書本模式";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function toggleMode() {
+      if (isScrollMode()) {
+        switchToBookMode();
+      } else {
+        switchToScrollMode();
+      }
+    }
+
+    if (modeToggle) {
+      modeToggle.addEventListener("click", toggleMode);
+    }
+
+
     navButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const target = Number(btn.dataset.go);
-        goToPage(target, target < currentPage ? "prev" : "next");
+        if (isScrollMode()) {
+          const targetId = scrollTargets[target] || "scroll-home";
+          const el = document.getElementById(targetId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          goToPage(target, target < currentPage ? "prev" : "next");
+        }
       });
     });
 
     homeBtn.addEventListener("click", (event) => {
       event.preventDefault();
-      goToPage(0, "prev");
+      if (isScrollMode()) {
+        const el = document.getElementById("scroll-home");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        goToPage(0, "prev");
+      }
     });
 
     const openTargets = [openingBook, realBookCover].filter(Boolean);
@@ -2513,6 +2900,8 @@
     });
 
     document.addEventListener("keydown", (event) => {
+      if (isScrollMode()) return;
+
       if (!document.body.classList.contains("opened")) {
         if (event.key === "Enter" || event.key === " ") {
           openBook();
