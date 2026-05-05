@@ -693,10 +693,462 @@
       background: white;
     }
 
+
+    /* ===== StrokeIME 強化視覺區塊 ===== */
+
+    .ime-hero-window {
+      position: relative;
+      z-index: 1;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(34, 211, 238, 0.22), transparent 34%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 64, 175, 0.96));
+      border: 1px solid rgba(147, 197, 253, 0.28);
+      border-radius: 26px;
+      padding: 20px;
+      color: #e2e8f0;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 22px 44px rgba(15, 23, 42, 0.28);
+      overflow: hidden;
+    }
+
+    .ime-hero-window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(147, 197, 253, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(147, 197, 253, 0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .ime-topline,
+    .ime-screen,
+    .candidate-window,
+    .ime-shortcuts {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ime-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #bfdbfe;
+      font-weight: 900;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    .ime-topline small {
+      color: #67e8f9;
+      font-weight: 900;
+      font-size: 12px;
+      border: 1px solid rgba(103, 232, 249, 0.35);
+      background: rgba(8, 145, 178, 0.16);
+      padding: 4px 9px;
+      border-radius: 999px;
+    }
+
+    .ime-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #22d3ee;
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.95);
+      flex: 0 0 auto;
+      animation: pulseDot 1.8s infinite;
+    }
+
+    .ime-screen {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .ime-row {
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+      font-family: Consolas, "Microsoft JhengHei", monospace;
+    }
+
+    .ime-row span {
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ime-row strong {
+      color: #e0f2fe;
+      font-size: 20px;
+      letter-spacing: 2px;
+      min-height: 30px;
+    }
+
+    .ime-row em {
+      color: #67e8f9;
+      font-style: normal;
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .typing-code::before {
+      content: "";
+      animation: typingCode 6s infinite;
+    }
+
+    .typing-strokes::before {
+      content: "";
+      animation: typingStrokes 6s infinite;
+      color: #67e8f9;
+      text-shadow: 0 0 14px rgba(103, 232, 249, 0.5);
+    }
+
+    .ime-cursor {
+      color: #93c5fd;
+      font-style: normal;
+      font-weight: 900;
+      animation: blink 0.8s infinite;
+    }
+
+    .candidate-window {
+      background: rgba(15, 23, 42, 0.66);
+      border: 1px solid rgba(147, 197, 253, 0.26);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .candidate-title {
+      color: #93c5fd;
+      font-weight: 900;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .candidate-grid button {
+      border: 1px solid rgba(147, 197, 253, 0.35);
+      background: rgba(37, 99, 235, 0.26);
+      color: #dbeafe;
+      padding: 8px 6px;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.22s ease;
+    }
+
+    .candidate-grid button:hover {
+      transform: translateY(-3px);
+      background: rgba(6, 182, 212, 0.28);
+      box-shadow: 0 10px 20px rgba(6, 182, 212, 0.18);
+    }
+
+    .animated-candidates button {
+      opacity: 0;
+      animation: candidatePop 6s infinite;
+    }
+
+    .animated-candidates button:nth-child(1) { animation-delay: 2.55s; }
+    .animated-candidates button:nth-child(2) { animation-delay: 2.68s; }
+    .animated-candidates button:nth-child(3) { animation-delay: 2.81s; }
+    .animated-candidates button:nth-child(4) { animation-delay: 2.94s; }
+    .animated-candidates button:nth-child(5) { animation-delay: 3.07s; }
+    .animated-candidates button:nth-child(6) { animation-delay: 3.20s; }
+    .animated-candidates button:nth-child(7) { animation-delay: 3.33s; }
+    .animated-candidates button:nth-child(8) { animation-delay: 3.46s; }
+    .animated-candidates button:nth-child(9) { animation-delay: 3.59s; }
+    .animated-candidates button:nth-child(10) { animation-delay: 3.72s; }
+
+    .ime-shortcuts {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ime-shortcuts span {
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+
+    .decompose-wrap {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .big-char-card {
+      background:
+        radial-gradient(circle at 80% 10%, rgba(34, 211, 238, 0.18), transparent 34%),
+        linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      border-radius: 32px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 390px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .big-char-card::after {
+      content: "木";
+      position: absolute;
+      font-size: 220px;
+      font-weight: 950;
+      color: rgba(255, 255, 255, 0.04);
+      right: -20px;
+      bottom: -80px;
+    }
+
+    .draw-character {
+      position: relative;
+      z-index: 1;
+      width: 210px;
+      height: 210px;
+      margin-bottom: 18px;
+    }
+
+    .stroke-line {
+      position: absolute;
+      background: #67e8f9;
+      border-radius: 999px;
+      box-shadow: 0 0 20px rgba(103, 232, 249, 0.85);
+      transform-origin: left center;
+      opacity: 0;
+      animation: drawStroke 5.2s infinite;
+    }
+
+    .line-1 { width: 138px; height: 13px; left: 36px; top: 48px; animation-delay: 0.2s; }
+    .line-2 { width: 142px; height: 13px; left: 103px; top: 48px; transform: rotate(90deg); animation-delay: 0.9s; }
+    .line-3 { width: 96px; height: 13px; left: 100px; top: 105px; transform: rotate(135deg); animation-delay: 1.6s; }
+    .line-4 { width: 98px; height: 13px; left: 110px; top: 105px; transform: rotate(45deg); animation-delay: 2.3s; }
+
+    .big-char-card h3 {
+      position: relative;
+      z-index: 1;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .big-char-card p {
+      position: relative;
+      z-index: 1;
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    .decompose-steps {
+      display: grid;
+      gap: 14px;
+    }
+
+    .decode-step {
+      background: var(--card);
+      border: 1px solid rgba(219, 234, 254, 0.95);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .decode-step b {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 17px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      font-size: 22px;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+    }
+
+    .decode-step h3 {
+      color: #1e3a8a;
+      margin-bottom: 4px;
+      font-size: 20px;
+    }
+
+    .decode-step p {
+      color: #475569;
+    }
+
+    .wildcard-card {
+      background:
+        radial-gradient(circle at 88% 15%, rgba(34, 211, 238, 0.24), transparent 30%),
+        linear-gradient(135deg, #1d4ed8, #0f172a);
+      border-radius: 34px;
+      color: white;
+      padding: 42px;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 26px;
+      align-items: center;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .wildcard-card::before {
+      content: "*";
+      position: absolute;
+      right: 28px;
+      top: -34px;
+      font-size: 180px;
+      font-weight: 950;
+      color: rgba(255,255,255,0.06);
+      line-height: 1;
+    }
+
+    .wildcard-card h2 {
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.18;
+      margin-bottom: 14px;
+    }
+
+    .wildcard-card p {
+      color: #dbeafe;
+      font-size: 17px;
+    }
+
+    .wildcard-demo {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 24px;
+      padding: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .wildcard-flow {
+      display: grid;
+      gap: 12px;
+    }
+
+    .wildcard-flow div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.34);
+      border-radius: 16px;
+      padding: 13px 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 900;
+    }
+
+    .wildcard-flow code {
+      color: #67e8f9;
+      font-size: 18px;
+    }
+
+
+    @keyframes typingCode {
+      0%, 8% { content: ""; }
+      18%, 27% { content: "u"; }
+      36%, 45% { content: "ui"; }
+      54%, 78% { content: "uio"; }
+      88%, 100% { content: ""; }
+    }
+
+    @keyframes typingStrokes {
+      0%, 8% { content: ""; }
+      18%, 27% { content: "一"; }
+      36%, 45% { content: "一 丨"; }
+      54%, 78% { content: "一 丨 丿"; }
+      88%, 100% { content: ""; }
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.25); opacity: 1; }
+    }
+
+    @keyframes candidatePop {
+      0%, 38% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+      }
+      48%, 80% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      92%, 100% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+      }
+    }
+
+    @keyframes drawStroke {
+      0%, 10% {
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+      }
+      22%, 74% {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+      }
+      92%, 100% {
+        opacity: 0.15;
+        clip-path: inset(0 0 0 0);
+      }
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-70px) rotate(-28deg); opacity: 0; }
+      35% { opacity: 0; }
+      55% { opacity: 1; }
+      75% { transform: translateX(70px) rotate(-28deg); opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .typing-code::before { content: "uio"; animation: none; }
+      .typing-strokes::before { content: "一 丨 丿"; animation: none; }
+      .animated-candidates button { opacity: 1; animation: none; }
+      .ime-cursor, .ime-status-dot, .stroke-line, .logo-mark::after { animation: none; }
+      .stroke-line { opacity: 1; clip-path: inset(0 0 0 0); }
+    }
+
+
     @media (max-width: 960px) {
       .hero,
       .showcase,
-      .video-inner {
+      .video-inner,
+      .decompose-wrap,
+      .wildcard-card {
         grid-template-columns: 1fr;
       }
 
@@ -710,6 +1162,10 @@
       }
 
       .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .candidate-grid {
         grid-template-columns: repeat(2, 1fr);
       }
 
@@ -791,15 +1247,49 @@
         <div class="key"><strong>k</strong><span>乛 / 折</span></div>
         <div class="key"><strong>l</strong><span>萬用字 *</span></div>
       </div>
-      <div class="demo-box">
-        輸入：<span class="input">uio</span><br />
-        代表：一 丨 丿<br />
-        功能：根據筆劃順序搜尋候選字
-        <div class="candidate-row">
-          <span class="candidate">0 候選字</span>
-          <span class="candidate">9 候選字</span>
-          <span class="candidate">8 候選字</span>
-          <span class="candidate">↑↓ 翻頁</span>
+      <div class="ime-hero-window">
+        <div class="ime-topline">
+          <span class="ime-status-dot"></span>
+          <span>StrokeIME 即時輸入視窗</span>
+          <small>候選字模式</small>
+        </div>
+
+        <div class="ime-screen">
+          <div class="ime-row">
+            <span>輸入碼</span>
+            <strong class="typing-code"></strong>
+            <i class="ime-cursor">|</i>
+          </div>
+          <div class="ime-row">
+            <span>筆劃轉換</span>
+            <strong class="typing-strokes"></strong>
+          </div>
+          <div class="ime-row">
+            <span>目前邏輯</span>
+            <em>依照筆劃順序搜尋字庫</em>
+          </div>
+        </div>
+
+        <div class="candidate-window">
+          <div class="candidate-title">候選字</div>
+          <div class="candidate-grid animated-candidates">
+            <button>0 木</button>
+            <button>9 才</button>
+            <button>8 大</button>
+            <button>7 不</button>
+            <button>6 王</button>
+            <button>5 中</button>
+            <button>4 日</button>
+            <button>3 月</button>
+            <button>2 人</button>
+            <button>1 口</button>
+          </div>
+        </div>
+
+        <div class="ime-shortcuts">
+          <span>↑↓ 翻頁</span>
+          <span>數字鍵選字</span>
+          <span>Ctrl + Backspace 刪除</span>
         </div>
       </div>
     </div>
@@ -829,6 +1319,76 @@
       </div>
     </div>
   </section>
+
+
+  <section class="decompose-section" id="decompose">
+    <div class="section-title">
+      <div class="eyebrow">Character Decomposition</div>
+      <h2>中文字筆劃拆解動畫</h2>
+      <p>用「木」示範中文字如何被拆解成筆劃，再轉換成鍵盤輸入碼，呈現本專題最核心的字形邏輯。</p>
+    </div>
+    <div class="decompose-wrap">
+      <div class="big-char-card">
+        <div class="draw-character" aria-label="木字筆劃動畫">
+          <span class="stroke-line line-1"></span>
+          <span class="stroke-line line-2"></span>
+          <span class="stroke-line line-3"></span>
+          <span class="stroke-line line-4"></span>
+        </div>
+        <h3>木 → 一 丨 丿 丶</h3>
+        <p>筆劃逐步出現，模擬中文字形拆解與輸入碼轉換。</p>
+      </div>
+      <div class="decompose-steps">
+        <div class="decode-step">
+          <b>字</b>
+          <div>
+            <h3>選定中文字</h3>
+            <p>以中文字「木」為例，觀察其字形結構與書寫順序。</p>
+          </div>
+        </div>
+        <div class="decode-step">
+          <b>劃</b>
+          <div>
+            <h3>拆解筆劃</h3>
+            <p>依序拆成「一、丨、丿、丶」等基本筆劃。</p>
+          </div>
+        </div>
+        <div class="decode-step">
+          <b>鍵</b>
+          <div>
+            <h3>轉換按鍵</h3>
+            <p>根據對應規則轉成 u、i、o、j，讓鍵盤可以輸入字形。</p>
+          </div>
+        </div>
+        <div class="decode-step">
+          <b>選</b>
+          <div>
+            <h3>顯示候選字</h3>
+            <p>系統比對字庫後顯示候選字，使用者可用數字鍵選字。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wildcard-section" id="wildcard">
+    <div class="wildcard-card">
+      <div>
+        <div class="eyebrow">Wildcard Search</div>
+        <h2>不知道完整筆劃？<br />用 l 代替未知筆劃</h2>
+        <p>萬用字是 StrokeIME 的特色功能。當使用者只記得部分筆劃時，可以用 l 代表任意筆劃，系統仍能列出可能候選字。</p>
+      </div>
+      <div class="wildcard-demo">
+        <div class="wildcard-flow">
+          <div><span>原本完整筆劃</span><code>u u u</code></div>
+          <div><span>不確定第二筆</span><code>u l u</code></div>
+          <div><span>系統解讀</span><code>橫 + 任意 + 橫</code></div>
+          <div><span>結果</span><code>列出符合條件的候選字</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 
   <section>
     <div class="section-title">
@@ -1039,5 +1599,7 @@
   <footer>
     <p>© 2026 StrokeIME 筆劃輸入法｜淡江大學資工專題展示網站</p>
   </footer>
+
+
 </body>
 </html>
