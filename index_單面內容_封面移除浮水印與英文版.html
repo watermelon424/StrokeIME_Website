@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StrokeIME 筆劃輸入法｜翻開習字帖專題網站</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --ink: #111111;
+      --ink-soft: #2d2d2d;
+      --paper: #f5eddc;
+      --paper-light: #fffaf0;
+      --paper-dark: #dfd0ae;
+      --desk: #0c0c0c;
+      --seal: #9f1239;
+      --shadow: 0 32px 90px rgba(0, 0, 0, 0.36);
+      --book-min-height: 720px;
+      --synced-book-height: var(--book-min-height);
+      --book-radius: 20px;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Noto Serif TC", "PMingLiU", "MingLiU", "Microsoft JhengHei", serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.10) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.10) 1px, transparent 1px),
+        linear-gradient(45deg, transparent calc(50% - 1px), rgba(0,0,0,0.09), transparent calc(50% + 1px)),
+        linear-gradient(-45deg, transparent calc(50% - 1px), rgba(0,0,0,0.09), transparent calc(50% + 1px)),
+        radial-gradient(circle at 18% 14%, rgba(0,0,0,0.08), transparent 24%),
+        linear-gradient(135deg, #f7f0df 0%, #fffaf0 48%, #e8dfc8 100%);
+      background-size:
+        76px 76px,
+        76px 76px,
+        76px 76px,
+        76px 76px,
+        100% 100%,
+        100% 100%;
+      overflow-x: hidden;
+      line-height: 1.8;
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg transform='translate(6 2) rotate(-32 16 18)'%3E%3Cpath d='M14 2h4c2 0 3 1 3 3l1.2 17.5c.08 1.24-.34 2.47-1.17 3.39L16 31l-5.03-5.11a4.65 4.65 0 0 1-1.17-3.39L11 5c0-2 1-3 3-3z' fill='%23111111'/%3E%3Cpath d='M14.8 4h2.4c1 0 1.4.4 1.5 1.35l.95 14.65h-7.2l.95-14.65C13.4 4.4 13.8 4 14.8 4z' fill='%23d9d4c7'/%3E%3Cpath d='M12.2 19.8h7.6l4.2 4.3-8 8.2-8-8.2 4.2-4.3z' fill='%23c8b796'/%3E%3Cpath d='M14.2 22.2h3.6l-1.8 5.7-1.8-5.7z' fill='%239f1239'/%3E%3Ccircle cx='16' cy='21.2' r='1.1' fill='%23111111'/%3E%3Cpath d='M14.1 2.4c.55-.75 1.25-1.2 1.9-1.2s1.35.45 1.9 1.2' stroke='%23fffaf0' stroke-width='0.9' fill='none' opacity='.7'/%3E%3C/g%3E%3C/svg%3E") 6 36, auto;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -5;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .ink-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -4;
+      overflow: hidden;
+    }
+
+    .ink-bg span {
+      position: absolute;
+      color: rgba(17, 17, 17, 0.20);
+      font-size: clamp(96px, 14vw, 240px);
+      font-weight: 900;
+      line-height: 1;
+      animation: inkFloat 22s ease-in-out infinite alternate;
+      filter: blur(0px);
+      text-shadow:
+        0 8px 18px rgba(0,0,0,0.06),
+        0 0 1px rgba(0,0,0,0.18);
+      mix-blend-mode: multiply;
+    }
+
+    .ink-bg span:nth-child(1) { left: 4%; top: 12%; animation-duration: 25s; }
+    .ink-bg span:nth-child(2) { left: 18%; top: 70%; animation-duration: 29s; }
+    .ink-bg span:nth-child(3) { left: 41%; top: 13%; animation-duration: 27s; }
+    .ink-bg span:nth-child(4) { left: 60%; top: 69%; animation-duration: 31s; }
+    .ink-bg span:nth-child(5) { left: 77%; top: 13%; animation-duration: 28s; }
+    .ink-bg span:nth-child(6) { left: 87%; top: 55%; animation-duration: 33s; }
+
+    @keyframes inkFloat {
+      0% { transform: translate(0, 0) rotate(-5deg) scale(1); opacity: 0.18; }
+      50% { transform: translate(28px, -34px) rotate(3deg) scale(1.04); opacity: 0.30; }
+      100% { transform: translate(-24px, 26px) rotate(-2deg) scale(0.98); opacity: 0.20; }
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(17, 17, 17, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.22);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fffaf0;
+      font-weight: 900;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .logo-seal {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: var(--seal);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.8);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.30);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      color: rgba(255, 250, 240, 0.84);
+      font-weight: 800;
+      font-size: 14px;
+      align-items: center;
+    }
+
+    .nav-links button,
+    .nav-links a {
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.22);
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: 0.22s ease;
+    }
+
+    .nav-links button:hover,
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    .nav-download {
+      background: rgba(255,255,255,0.10) !important;
+    }
+
+    .open-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.10) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.10) 1px, transparent 1px),
+        linear-gradient(45deg, transparent calc(50% - 1px), rgba(0,0,0,0.08), transparent calc(50% + 1px)),
+        linear-gradient(-45deg, transparent calc(50% - 1px), rgba(0,0,0,0.08), transparent calc(50% + 1px)),
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.08), transparent 34%),
+        linear-gradient(135deg, #f7f0df, #fffaf0);
+      background-size: 76px 76px, 76px 76px, 76px 76px, 76px 76px, 100% 100%, 100% 100%;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    body.opened .open-screen {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .opening-book {
+      width: min(560px, 88vw);
+      height: min(380px, 62vw);
+      position: relative;
+      perspective: 1600px;
+      cursor: pointer;
+    }
+
+    .opening-book-base {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #f5eddc, #fffaf0);
+      border: 3px solid #111;
+      box-shadow: 0 38px 100px rgba(0,0,0,0.55);
+    }
+
+    .opening-cover {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 70% 20%, rgba(255,255,255,0.15), transparent 28%),
+        linear-gradient(135deg, #161616, #030303);
+      border: 3px solid #fffaf0;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      box-shadow: 0 35px 90px rgba(0,0,0,0.55);
+      animation: coverHint 2.6s ease-in-out infinite alternate;
+    }
+
+    body.opening .opening-cover {
+      animation: openCover 1.55s cubic-bezier(.18,.9,.2,1) forwards;
+    }
+
+    .cover-content {
+      position: absolute;
+      inset: 34px;
+      border: 2px solid rgba(255,250,240,0.78);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fffaf0;
+      text-align: center;
+    }
+
+    .cover-title {
+      writing-mode: vertical-rl;
+      font-size: clamp(36px, 8vw, 64px);
+      line-height: 1.2;
+      letter-spacing: 8px;
+      font-weight: 900;
+    }
+
+    .cover-seal {
+      margin-top: 20px;
+      background: var(--seal);
+      color: white;
+      padding: 8px 10px;
+      font-weight: 900;
+      border: 2px solid rgba(255,255,255,0.82);
+      writing-mode: vertical-rl;
+    }
+
+    .open-tip {
+      position: absolute;
+      left: 50%;
+      bottom: -58px;
+      transform: translateX(-50%);
+      color: rgba(17,17,17,0.78);
+      letter-spacing: 2px;
+      font-weight: 900;
+      white-space: nowrap;
+      animation: tipPulse 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes coverHint {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(-8deg); }
+    }
+
+    @keyframes openCover {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(-155deg); }
+    }
+
+    @keyframes tipPulse {
+      from { opacity: 0.55; transform: translateX(-50%) translateY(0); }
+      to { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 98px 20px 34px;
+    }
+
+    .book-stage {
+      width: min(1180px, 100%);
+      position: relative;
+      perspective: 2200px;
+    }
+
+    .book-shell {
+      position: relative;
+      min-height: var(--synced-book-height);
+      height: var(--synced-book-height);
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      filter: drop-shadow(0 34px 64px rgba(0,0,0,0.38));
+      transform-style: preserve-3d;
+    }
+
+    .book-spine {
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: calc(50% - 9px);
+      width: 18px;
+      z-index: 12;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.18), rgba(255,255,255,0.28), rgba(0,0,0,0.18));
+      border-radius: 999px;
+      box-shadow:
+        inset 3px 0 6px rgba(0,0,0,0.28),
+        inset -3px 0 6px rgba(0,0,0,0.18);
+      pointer-events: none;
+    }
+
+    .page {
+      min-height: var(--synced-book-height);
+      height: var(--synced-book-height);
+      padding: clamp(28px, 4vw, 52px);
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        radial-gradient(circle at 24% 18%, rgba(0,0,0,0.055), transparent 30%),
+        linear-gradient(135deg, var(--paper-light), var(--paper));
+      background-size: 52px 52px, 52px 52px, 100% 100%, 100% 100%;
+      border: 1px solid rgba(255,250,240,0.86);
+      box-shadow:
+        inset 0 0 0 7px rgba(255,255,255,0.22),
+        inset 0 0 45px rgba(0,0,0,0.065);
+      position: relative;
+      overflow: visible;
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      right: -42px;
+      top: -42px;
+      width: 130px;
+      height: 130px;
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.13), transparent 48%),
+        linear-gradient(135deg, var(--paper-dark), var(--paper-light));
+      transform: rotate(45deg);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      opacity: 0.75;
+    }
+
+    .left-page {
+      border-radius: 18px 0 0 18px;
+      transform-origin: right center;
+    }
+
+    .right-page {
+      border-radius: 0 18px 18px 0;
+      transform-origin: left center;
+    }
+
+    .right-page.flipping {
+      animation: pageFlipNext 0.92s cubic-bezier(.22,.8,.18,1);
+      z-index: 18;
+    }
+
+    .left-page.flipping-back {
+      animation: pageFlipPrev 0.92s cubic-bezier(.22,.8,.18,1);
+      z-index: 18;
+    }
+
+    @keyframes pageFlipNext {
+      0% {
+        transform: rotateY(0deg);
+        box-shadow: inset 0 0 0 7px rgba(255,255,255,0.22), -4px 0 18px rgba(0,0,0,0.05);
+      }
+      50% {
+        transform: rotateY(-92deg);
+        filter: brightness(0.82);
+        box-shadow: -28px 0 48px rgba(0,0,0,0.28);
+      }
+      100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes pageFlipPrev {
+      0% {
+        transform: rotateY(0deg);
+      }
+      50% {
+        transform: rotateY(92deg);
+        filter: brightness(0.82);
+        box-shadow: 28px 0 48px rgba(0,0,0,0.28);
+      }
+      100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    .page-label {
+      position: absolute;
+      bottom: 20px;
+      color: rgba(0,0,0,0.38);
+      font-family: Georgia, serif;
+      font-weight: 800;
+      letter-spacing: 2px;
+      z-index: 2;
+    }
+
+    .left-page .page-label { left: 34px; }
+    .right-page .page-label { right: 34px; }
+
+    .seal {
+      display: inline-grid;
+      place-items: center;
+      min-width: 52px;
+      min-height: 52px;
+      padding: 6px;
+      background: var(--seal);
+      color: white;
+      border: 2px solid rgba(255,255,255,0.85);
+      font-weight: 900;
+      margin-bottom: 18px;
+      writing-mode: vertical-rl;
+      letter-spacing: 2px;
+      box-shadow: 0 10px 24px rgba(159, 18, 57, 0.18);
+    }
+
+    .eyebrow {
+      font-family: Georgia, serif;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 13px;
+      font-weight: 900;
+      color: rgba(0,0,0,0.55);
+      margin-bottom: 6px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.26;
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: clamp(44px, 5.8vw, 74px);
+      letter-spacing: 2px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 23px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--ink-soft);
+      font-size: 17px;
+    }
+
+    .brush-title {
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+    }
+
+    .brush-title::after {
+      content: "";
+      position: absolute;
+      left: 1%;
+      right: -4%;
+      bottom: 4px;
+      height: 16px;
+      background: rgba(0,0,0,0.10);
+      transform: rotate(-1deg);
+      z-index: -1;
+      border-radius: 999px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 24px 0 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 20px;
+      border: 2px solid #111;
+      background: #111;
+      color: #fffaf0;
+      font-weight: 900;
+      transition: 0.25s ease;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.16);
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 9px 9px 0 rgba(0,0,0,0.18);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: #111;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .hero-tags span {
+      padding: 6px 11px;
+      border: 1px solid rgba(0,0,0,0.32);
+      background: rgba(255,255,255,0.36);
+      font-weight: 900;
+    }
+
+    .calligraphy-window {
+      position: relative;
+      background: rgba(255,255,255,0.52);
+      border: 3px solid #111;
+      padding: 20px;
+      box-shadow: 11px 11px 0 rgba(0,0,0,0.14);
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .calligraphy-window::before {
+      content: "筆";
+      position: absolute;
+      right: -8px;
+      bottom: -78px;
+      font-size: 220px;
+      color: rgba(0,0,0,0.06);
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .window-head {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #111;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      font-weight: 900;
+      gap: 12px;
+    }
+
+    .ime-line {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px dashed rgba(0,0,0,0.24);
+      font-size: 17px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ime-line span {
+      font-weight: 900;
+    }
+
+    .typing-code::before {
+      content: "";
+      animation: typingCode 6s infinite;
+      font-family: Consolas, monospace;
+      letter-spacing: 2px;
+    }
+
+    .typing-strokes::before {
+      content: "";
+      animation: typingStrokes 6s infinite;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 6px;
+    }
+
+    .candidate-strip {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .candidate-strip b {
+      border: 2px solid #111;
+      background: rgba(255,255,255,0.54);
+      padding: 7px 8px;
+      text-align: center;
+      font-size: 17px;
+      animation: candidatePop 6s infinite;
+      opacity: 0;
+    }
+
+    .candidate-strip b:nth-child(1) { animation-delay: 2.4s; }
+    .candidate-strip b:nth-child(2) { animation-delay: 2.55s; }
+    .candidate-strip b:nth-child(3) { animation-delay: 2.70s; }
+    .candidate-strip b:nth-child(4) { animation-delay: 2.85s; }
+    .candidate-strip b:nth-child(5) { animation-delay: 3s; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .ink-card {
+      background: rgba(255,255,255,0.46);
+      border: 2px solid rgba(0,0,0,0.84);
+      padding: 18px;
+      min-height: 190px;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.10);
+      position: relative;
+      overflow: visible;
+    }
+
+    .ink-icon {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .flow-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 14px;
+      align-items: center;
+      background: rgba(255,255,255,0.48);
+      border: 2px solid #111;
+      padding: 16px;
+      box-shadow: 7px 7px 0 rgba(0,0,0,0.1);
+    }
+
+    .flow-step b {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      background: #111;
+      color: #fffaf0;
+      font-size: 21px;
+    }
+
+    .character-demo {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .brush-character {
+      position: relative;
+      min-height: 320px;
+      background: rgba(255,255,255,0.36);
+      border: 3px solid #111;
+      display: grid;
+      place-items: center;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.12);
+    }
+
+    .grid-lines {
+      position: absolute;
+      inset: 24px;
+      border: 2px solid rgba(0,0,0,0.22);
+      background:
+        linear-gradient(45deg, transparent calc(50% - 1px), rgba(0,0,0,0.15), transparent calc(50% + 1px)),
+        linear-gradient(-45deg, transparent calc(50% - 1px), rgba(0,0,0,0.15), transparent calc(50% + 1px)),
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,0.14), transparent calc(50% + 1px)),
+        linear-gradient(transparent calc(50% - 1px), rgba(0,0,0,0.14), transparent calc(50% + 1px));
+    }
+
+    .draw-character {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      z-index: 1;
+    }
+
+    .stroke-line {
+      position: absolute;
+      background: #111;
+      border-radius: 999px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+      transform-origin: left center;
+      opacity: 0;
+      animation: drawStroke 5.2s infinite;
+    }
+
+    .line-1 { width: 150px; height: 18px; left: 38px; top: 50px; animation-delay: 0.2s; }
+    .line-2 { width: 154px; height: 18px; left: 112px; top: 50px; transform: rotate(90deg); animation-delay: 0.9s; }
+    .line-3 { width: 104px; height: 18px; left: 106px; top: 112px; transform: rotate(135deg); animation-delay: 1.6s; }
+    .line-4 { width: 108px; height: 18px; left: 116px; top: 112px; transform: rotate(45deg); animation-delay: 2.3s; }
+
+    .decode-panel {
+      display: grid;
+      gap: 13px;
+    }
+
+    .decode-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 2px solid rgba(0,0,0,0.18);
+      padding: 12px 0;
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .decode-row code {
+      font-family: Consolas, monospace;
+      background: #111;
+      color: #fffaf0;
+      padding: 4px 10px;
+    }
+
+    .wildcard-box {
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        radial-gradient(circle at 82% 18%, rgba(0,0,0,0.055), transparent 26%),
+        rgba(255,255,255,0.48);
+      background-size: 52px 52px, 52px 52px, 100% 100%, 100% 100%;
+      color: var(--ink);
+      padding: 34px;
+      border: 3px solid #111;
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.13);
+      position: relative;
+      overflow: visible;
+    }
+
+    .wildcard-box::after {
+      content: "*";
+      position: absolute;
+      right: 26px;
+      bottom: -38px;
+      font-size: 190px;
+      line-height: 1;
+      color: rgba(0,0,0,0.055);
+      font-family: Georgia, serif;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .wildcard-box h2,
+    .wildcard-box p {
+      color: var(--ink);
+      position: relative;
+      z-index: 1;
+    }
+
+    .wildcard-box .eyebrow {
+      color: rgba(0,0,0,0.55) !important;
+    }
+
+    .wild-flow {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .wild-flow div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid rgba(0,0,0,0.75);
+      background: rgba(255,255,255,0.48);
+      padding: 14px;
+      font-weight: 900;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.08);
+    }
+
+    .wild-flow code {
+      color: #fffaf0;
+      background: #111;
+      border: 1px solid rgba(0,0,0,0.82);
+      padding: 4px 10px;
+      font-family: Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .feature-item {
+      background: rgba(255,255,255,0.46);
+      border: 2px solid #111;
+      padding: 18px;
+      box-shadow: 7px 7px 0 rgba(0,0,0,0.1);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .tech-table,
+    .team-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.48);
+      border: 3px solid #111;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.12);
+    }
+
+    .tech-table th,
+    .tech-table td,
+    .team-table th,
+    .team-table td {
+      padding: 14px;
+      border: 1px solid rgba(0,0,0,0.3);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .tech-table th,
+    .team-table th {
+      background: #111;
+      color: #fffaf0;
+      font-size: 17px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 4px solid #111;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.12);
+      background: #111;
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .download-panel {
+      text-align: center;
+      border: 3px solid #111;
+      padding: 42px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(0,0,0,0.07), transparent 30%),
+        rgba(255,255,255,0.45);
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.14);
+      margin-top: 24px;
+    }
+
+    .controls {
+      width: min(1180px, 100%);
+      margin: 18px auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      color: #fffaf0;
+    }
+
+    .page-indicator {
+      color: rgba(255,250,240,0.78);
+      letter-spacing: 2px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .control-btn {
+      border: 1px solid rgba(255,250,240,0.48);
+      background: rgba(255,250,240,0.08);
+      color: #fffaf0;
+      padding: 12px 20px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.25s ease;
+      min-width: 120px;
+    }
+
+    .control-btn:hover:not(:disabled) {
+      background: rgba(255,250,240,0.18);
+      transform: translateY(-2px);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    footer {
+      color: rgba(17,17,17,0.68);
+      text-align: center;
+      padding: 18px 20px 30px;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    @keyframes typingCode {
+      0%, 8% { content: ""; }
+      18%, 27% { content: "u"; }
+      36%, 45% { content: "ui"; }
+      54%, 78% { content: "uio"; }
+      88%, 100% { content: ""; }
+    }
+
+    @keyframes typingStrokes {
+      0%, 8% { content: ""; }
+      18%, 27% { content: "一"; }
+      36%, 45% { content: "一 丨"; }
+      54%, 78% { content: "一 丨 丿"; }
+      88%, 100% { content: ""; }
+    }
+
+    @keyframes candidatePop {
+      0%, 40% { opacity: 0; transform: translateY(10px); }
+      50%, 82% { opacity: 1; transform: translateY(0); }
+      94%, 100% { opacity: 0; transform: translateY(10px); }
+    }
+
+    @keyframes drawStroke {
+      0%, 10% { opacity: 0; clip-path: inset(0 100% 0 0); }
+      22%, 74% { opacity: 1; clip-path: inset(0 0 0 0); }
+      92%, 100% { opacity: 0.18; clip-path: inset(0 0 0 0); }
+    }
+
+    @media (max-width: 920px) {
+      .nav-links {
+        display: none;
+      }
+
+      .book-shell {
+        grid-template-columns: 1fr;
+        min-height: var(--synced-book-height);
+        height: var(--synced-book-height);
+      }
+
+      .book-spine {
+        display: none;
+      }
+
+      .left-page,
+      .right-page {
+        border-radius: 18px;
+        min-height: var(--synced-book-height);
+        height: var(--synced-book-height);
+      }
+
+      .left-page {
+        display: none;
+      }
+
+      .right-page {
+        min-height: 72vh;
+      }
+
+      .candidate-strip,
+      .grid-3,
+      .feature-list,
+      .character-demo {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        padding: 0 4px;
+      }
+
+      .control-btn {
+        min-width: 96px;
+        padding: 11px 12px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 84px 12px 24px;
+      }
+
+      .page {
+        padding: 28px 20px 58px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      h2 {
+        font-size: 30px;
+      }
+
+      .flow-step {
+        grid-template-columns: 1fr;
+      }
+
+      .decode-row,
+      .wild-flow div {
+        flex-direction: column;
+      }
+
+      .window-head {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .opening-cover,
+      .right-page.flipping,
+      .left-page.flipping-back,
+      .ink-bg span,
+      .stroke-line,
+      .candidate-strip b {
+        animation: none !important;
+      }
+    }
+
+    /* ===== 真實翻書互動：點左右頁翻頁，不使用下一頁按鈕 ===== */
+    .page {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='rotate(-35 16 16)'%3E%3Cpath d='M14 3h4l1 18-3 7-3-7 1-18z' fill='%23111111'/%3E%3Cpath d='M15 4h2l.6 14h-3.2L15 4z' fill='%23fffaf0'/%3E%3Cpath d='M13 22h6l-3 7-3-7z' fill='%239f1239'/%3E%3C/g%3E%3C/svg%3E") 4 28, pointer;
+    }
+
+    .right-page::before,
+    .left-page::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 86px;
+      height: 86px;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0.72;
+      transition: 0.28s ease;
+    }
+
+    .right-page::before {
+      right: 0;
+      background:
+        linear-gradient(135deg, transparent 49%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0.04) 56%, transparent 57%),
+        linear-gradient(135deg, transparent 46%, rgba(255,255,255,0.76) 47%, var(--paper-dark) 70%);
+      clip-path: polygon(100% 0, 0 0, 100% 100%);
+      transform-origin: top right;
+    }
+
+    .left-page::before {
+      left: 0;
+      background:
+        linear-gradient(225deg, transparent 49%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0.04) 56%, transparent 57%),
+        linear-gradient(225deg, transparent 46%, rgba(255,255,255,0.76) 47%, var(--paper-dark) 70%);
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      transform-origin: top left;
+    }
+
+    .right-page:hover::before {
+      transform: rotate(-8deg) scale(1.08);
+      opacity: 1;
+    }
+
+    .left-page:hover::before {
+      transform: rotate(8deg) scale(1.08);
+      opacity: 1;
+    }
+
+    .turn-hint {
+      width: min(1180px, 100%);
+      margin: 18px auto 0;
+      color: rgba(17,17,17,0.72);
+      text-align: center;
+      letter-spacing: 2px;
+      font-weight: 900;
+      background: rgba(255, 250, 240, 0.62);
+      border: 1px solid rgba(0,0,0,0.14);
+      padding: 10px 14px;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.08);
+    }
+
+    .page-indicator {
+      margin-top: 10px;
+      color: rgba(17,17,17,0.62);
+      letter-spacing: 2px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .controls {
+      display: none !important;
+    }
+
+    .book-stage::before {
+      content: "";
+      position: absolute;
+      inset: 24px 10px -22px 10px;
+      background: rgba(0,0,0,0.18);
+      filter: blur(28px);
+      z-index: -1;
+      border-radius: 38px;
+    }
+
+
+    /* ===== 鋼筆右鍵墨水效果 + 可拖曳漂浮筆劃 ===== */
+    .ink-bg {
+      pointer-events: none;
+    }
+
+    .ink-bg span {
+      pointer-events: auto;
+      user-select: none;
+      transition: transform 0.08s linear, opacity 0.18s ease, text-shadow 0.18s ease;
+      will-change: transform;
+    }
+
+    .ink-bg span.dragging {
+      opacity: 0.40 !important;
+      text-shadow:
+        0 16px 30px rgba(0,0,0,0.12),
+        0 0 2px rgba(0,0,0,0.26);
+      cursor: grabbing !important;
+    }
+
+    body.pen-pressing,
+    body.pen-pressing .page,
+    body.pen-pressing a,
+    body.pen-pressing button {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg transform='translate(8 6) rotate(-16 14 14)'%3E%3Cpath d='M12 1h4c1.8 0 2.8.9 3 2.8l1.05 14.8c.1 1.35-.36 2.68-1.25 3.63L14 27l-4.8-4.77A4.82 4.82 0 0 1 7.95 18.6L9 3.8C9.2 1.9 10.2 1 12 1z' fill='%23111111'/%3E%3Cpath d='M12.7 3h2.6c.95 0 1.4.38 1.5 1.2l.92 12.9h-7.44l.92-12.9c.1-.82.55-1.2 1.5-1.2z' fill='%23d9d4c7'/%3E%3Cpath d='M10.3 16.8h7.4l4.3 4.38L14 29.4l-8-8.22 4.3-4.38z' fill='%23c8b796'/%3E%3Cpath d='M12.5 18.8h3L14 24z' fill='%239f1239'/%3E%3Ccircle cx='14' cy='18.3' r='1.05' fill='%23111111'/%3E%3C/g%3E%3C/svg%3E") 8 38, auto !important;
+    }
+
+    .ink-splash-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60;
+      overflow: hidden;
+    }
+
+    .ink-splash {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      margin-left: -9px;
+      margin-top: -9px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,0.18), transparent 22%),
+        radial-gradient(circle at 50% 50%, rgba(17,17,17,0.95), rgba(17,17,17,0.78) 55%, rgba(17,17,17,0.16) 74%, transparent 76%);
+      filter: blur(0.3px);
+      transform: scale(0.1);
+      opacity: 0.95;
+      animation: splashExpand 0.9s ease-out forwards;
+      mix-blend-mode: multiply;
+    }
+
+    .ink-splash::before,
+    .ink-splash::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      background: rgba(17,17,17,0.78);
+      border-radius: 999px;
+      transform-origin: center;
+      mix-blend-mode: multiply;
+    }
+
+    .ink-splash::before {
+      width: 34px;
+      height: 9px;
+      left: -10px;
+      top: 7px;
+      transform: rotate(26deg);
+      opacity: 0.34;
+    }
+
+    .ink-splash::after {
+      width: 14px;
+      height: 14px;
+      right: -6px;
+      bottom: -6px;
+      opacity: 0.42;
+    }
+
+    .ink-splash.big {
+      width: 34px;
+      height: 34px;
+      margin-left: -17px;
+      margin-top: -17px;
+      animation-duration: 1.15s;
+    }
+
+    .drag-note {
+      width: min(1180px, 100%);
+      margin: 10px auto 0;
+      color: rgba(17,17,17,0.62);
+      text-align: center;
+      letter-spacing: 1.5px;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    @keyframes splashExpand {
+      0% {
+        transform: scale(0.12) rotate(0deg);
+        opacity: 0.94;
+      }
+      38% {
+        transform: scale(1.16) rotate(8deg);
+        opacity: 0.88;
+      }
+      100% {
+        transform: scale(1.46) rotate(14deg);
+        opacity: 0;
+      }
+    }
+
+
+    /* ===== 同一本習字帖開書動畫 + 更真實翻頁 ===== */
+    .open-screen {
+      display: none !important;
+    }
+
+    .app {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.2,.8,.2,1);
+    }
+
+    body.opened .app {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .real-book-cover {
+      position: absolute;
+      inset: 0;
+      z-index: 60;
+      width: 100%;
+      min-height: 100%;
+      height: 100%;
+      transform-origin: left center;
+      transform-style: preserve-3d;
+      background:
+        radial-gradient(circle at 78% 18%, rgba(255,255,255,0.10), transparent 26%),
+        linear-gradient(90deg, rgba(255,255,255,0.055), transparent 10%, transparent 88%, rgba(0,0,0,0.38)),
+        linear-gradient(135deg, #1f1f1f 0%, #0d0d0d 42%, #030303 100%);
+      border: 5px solid #1a1a1a;
+      box-shadow:
+        0 40px 105px rgba(0,0,0,0.66),
+        inset 0 0 0 2px rgba(255,250,240,0.16),
+        inset 0 0 0 18px rgba(255,255,255,0.035),
+        inset 0 0 75px rgba(0,0,0,0.72);
+      border-radius: var(--book-radius);
+      cursor: inherit;
+      transition:
+        transform 1.65s cubic-bezier(.18,.9,.2,1),
+        opacity 0.55s ease 1.12s,
+        visibility 0.55s ease 1.12s,
+        box-shadow 0.5s ease;
+      animation: coverIdle 2.8s ease-in-out infinite alternate;
+      overflow: hidden;
+    }
+
+    .real-book-cover::before {
+      content: "";
+      position: absolute;
+      inset: 34px;
+      border: 3px double rgba(255,250,240,0.72);
+      box-shadow:
+        inset 0 0 0 8px rgba(255,255,255,0.035),
+        0 0 0 1px rgba(0,0,0,0.36);
+      pointer-events: none;
+    }
+
+    .real-book-cover::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 42px;
+      width: 34px;
+      background:
+        linear-gradient(90deg,
+          rgba(255,255,255,0.08),
+          rgba(0,0,0,0.58) 34%,
+          rgba(255,255,255,0.08) 58%,
+          rgba(0,0,0,0.34));
+      border-left: 1px solid rgba(255,250,240,0.20);
+      border-right: 1px solid rgba(255,250,240,0.14);
+      box-shadow:
+        14px 0 32px rgba(0,0,0,0.40),
+        inset 7px 0 8px rgba(255,255,255,0.045),
+        inset -8px 0 12px rgba(0,0,0,0.45);
+      pointer-events: none;
+    }
+
+    body.opened .real-book-cover {
+      transform: rotateY(-162deg) translateZ(4px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      animation: none;
+    }
+
+    .real-cover-content {
+      position: absolute;
+      inset: 54px 70px 54px 96px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 28px;
+      color: #fffaf0;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .real-cover-title {
+      justify-self: center;
+      min-width: min(235px, 42vw);
+      min-height: clamp(300px, 55vh, 440px);
+      padding: 34px 28px;
+      writing-mode: vertical-rl;
+      font-size: clamp(42px, 6vw, 72px);
+      line-height: 1.25;
+      letter-spacing: 9px;
+      font-weight: 950;
+      color: #161616;
+      background:
+        linear-gradient(135deg, rgba(255,250,240,0.96), rgba(225,214,188,0.96));
+      border: 5px solid rgba(255,250,240,0.78);
+      outline: 2px solid rgba(0,0,0,0.58);
+      box-shadow:
+        0 18px 40px rgba(0,0,0,0.36),
+        inset 0 0 0 2px rgba(0,0,0,0.16),
+        inset 0 0 40px rgba(0,0,0,0.08);
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.45);
+      position: relative;
+    }
+
+    .real-cover-title::before {
+      content: "";
+      display: none;
+    }
+
+    .real-cover-title::after {
+      content: "習字帖";
+      position: absolute;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      writing-mode: horizontal-tb;
+      font-size: 18px;
+      letter-spacing: 5px;
+      color: rgba(0,0,0,0.55);
+    }
+
+    .real-cover-subtitle {
+      display: none;
+    }
+
+    .real-cover-emboss {
+      display: none;
+    }
+
+    .real-cover-seal {
+      position: absolute;
+      right: 13%;
+      bottom: 13%;
+      background: var(--seal);
+      color: #fff;
+      border: 3px solid rgba(255,255,255,0.86);
+      padding: 12px 14px;
+      writing-mode: vertical-rl;
+      font-weight: 900;
+      letter-spacing: 3px;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.32);
+    }
+
+    .real-cover-tip {
+      position: absolute;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      color: rgba(255,250,240,0.78);
+      letter-spacing: 2px;
+      font-weight: 900;
+      animation: coverTip 1.2s ease-in-out infinite alternate;
+      z-index: 2;
+      white-space: nowrap;
+    }
+
+    
+    .book-stage.not-opened {
+      transform: translateY(18px) scale(0.985);
+      animation: bookArrive 1.05s cubic-bezier(.2,.85,.2,1) forwards;
+    }
+
+    .book-stage.not-opened .book-shell::before {
+      content: "";
+      position: absolute;
+      inset: 14px 18px 14px 18px;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(120,104,75,0.24) 0 2px,
+          rgba(255,250,240,0.66) 2px 4px
+        );
+      clip-path: inset(0 0 0 0 round 14px);
+      opacity: 0.55;
+    }
+
+    .book-stage.not-opened .book-shell::after {
+      content: "";
+      position: absolute;
+      top: 24px;
+      bottom: 24px;
+      right: 18px;
+      width: 22px;
+      z-index: 1;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(117,104,79,0.22) 0 2px,
+          rgba(255,250,240,0.8) 2px 4px
+        );
+      border-radius: 0 8px 8px 0;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.12);
+      opacity: 0.92;
+    }
+
+    @keyframes bookArrive {
+      0% {
+        transform: translateY(30px) scale(0.95);
+        opacity: 0.68;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes coverIdle {
+      0% {
+        transform: rotateY(0deg) translateY(0);
+        box-shadow: 0 36px 100px rgba(0,0,0,0.62), inset 0 0 0 10px rgba(255,255,255,0.04);
+      }
+      100% {
+        transform: rotateY(-5deg) translateY(-2px);
+        box-shadow: 0 44px 112px rgba(0,0,0,0.68), inset 0 0 0 10px rgba(255,255,255,0.04);
+      }
+    }
+
+    @keyframes coverTip {
+      from { opacity: 0.55; transform: translateX(-50%) translateY(0); }
+      to { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+    }
+
+    .book-stage.not-opened .book-shell {
+      pointer-events: auto;
+    }
+
+    .book-stage.not-opened .left-page,
+    .book-stage.not-opened .right-page,
+    .book-stage.not-opened .book-spine,
+    .book-stage.not-opened .flip-sheet {
+      pointer-events: none;
+    }
+
+    .flip-sheet {
+      position: absolute;
+      top: 0;
+      bottom: auto;
+      width: 50%;
+      min-height: var(--synced-book-height);
+      height: var(--synced-book-height);
+      z-index: 30;
+      border: 1px solid rgba(255,250,240,0.86);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1800px;
+      pointer-events: none;
+      display: none;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        linear-gradient(rgba(0,0,0,0.045) 0 1px, transparent 1px),
+        radial-gradient(circle at 24% 18%, rgba(0,0,0,0.055), transparent 30%),
+        linear-gradient(135deg, var(--paper-light), var(--paper));
+      background-size: 52px 52px, 52px 52px, 100% 100%, 100% 100%;
+      box-shadow:
+        inset 0 0 0 7px rgba(255,255,255,0.22),
+        inset 0 0 45px rgba(0,0,0,0.065);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-face-front {
+      z-index: 2;
+      transform: rotateY(0deg);
+    }
+
+    .flip-face-back {
+      z-index: 1;
+      transform: rotateY(180deg);
+    }
+
+    .flip-sheet::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0.28), transparent 36%, rgba(255,255,255,0.18));
+      opacity: 0;
+      animation: paperShade 1.12s ease-in-out forwards;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .flip-sheet::after {
+      content: "";
+      position: absolute;
+      top: -22px;
+      bottom: -22px;
+      width: 72px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.28), transparent 65%);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .flip-sheet-content,
+    .flip-sheet-back-content {
+      width: 100%;
+      height: 100%;
+      padding: clamp(28px, 4vw, 52px);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-sheet-back-content {
+      position: relative;
+    }
+
+    .flip-back-grid {
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background:
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(0,0,0,0.08), transparent calc(50% + 1px)),
+        linear-gradient(transparent calc(50% - 1px), rgba(0,0,0,0.08), transparent calc(50% + 1px)),
+        linear-gradient(45deg, transparent calc(50% - 1px), rgba(0,0,0,0.06), transparent calc(50% + 1px)),
+        linear-gradient(-45deg, transparent calc(50% - 1px), rgba(0,0,0,0.06), transparent calc(50% + 1px));
+      opacity: 0.72;
+    }
+
+    .flip-sheet.next {
+      right: 0;
+      transform-origin: left center;
+      border-radius: 0 18px 18px 0;
+      display: block;
+      animation: realFlipNext 1.12s cubic-bezier(.18,.88,.16,1) forwards;
+    }
+
+    .flip-sheet.next .flip-face-front,
+    .flip-sheet.next .flip-face-back {
+      border-radius: 0 18px 18px 0;
+    }
+
+    .flip-sheet.next::after {
+      left: -36px;
+    }
+
+    .flip-sheet.prev {
+      left: 0;
+      transform-origin: right center;
+      border-radius: 18px 0 0 18px;
+      display: block;
+      animation: realFlipPrev 1.12s cubic-bezier(.18,.88,.16,1) forwards;
+    }
+
+    .flip-sheet.prev .flip-face-front,
+    .flip-sheet.prev .flip-face-back {
+      border-radius: 18px 0 0 18px;
+    }
+
+    .flip-sheet.prev::after {
+      right: -36px;
+    }
+
+    @keyframes realFlipNext {
+      0% {
+        transform: rotateY(0deg) translateZ(2px);
+        filter: brightness(1);
+      }
+      22% {
+        transform: rotateY(-38deg) translateZ(18px) skewY(-1deg);
+        filter: brightness(0.98);
+      }
+      52% {
+        transform: rotateY(-104deg) translateZ(34px) skewY(-2.5deg);
+        filter: brightness(0.78);
+      }
+      78% {
+        transform: rotateY(-154deg) translateZ(18px) skewY(-1deg);
+        filter: brightness(0.88);
+      }
+      100% {
+        transform: rotateY(-180deg) translateZ(2px);
+        filter: brightness(1);
+      }
+    }
+
+    @keyframes realFlipPrev {
+      0% {
+        transform: rotateY(0deg) translateZ(2px);
+        filter: brightness(1);
+      }
+      22% {
+        transform: rotateY(42deg) translateZ(20px) translateX(-6px) skewY(1deg);
+        filter: brightness(0.98);
+      }
+      52% {
+        transform: rotateY(108deg) translateZ(38px) translateX(-18px) skewY(2.5deg);
+        filter: brightness(0.78);
+      }
+      78% {
+        transform: rotateY(156deg) translateZ(20px) translateX(-8px) skewY(1deg);
+        filter: brightness(0.88);
+      }
+      100% {
+        transform: rotateY(180deg) translateZ(2px);
+        filter: brightness(1);
+      }
+    }
+
+
+    .flip-sheet.hide-front .flip-face-front {
+      visibility: hidden;
+    }
+
+    @keyframes paperShade {
+      0% { opacity: 0.02; }
+      45% { opacity: 0.42; }
+      100% { opacity: 0.04; }
+    }
+
+    .sound-note {
+      color: rgba(17,17,17,0.50);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 920px) {
+      .real-book-cover {
+        inset: 0;
+      }
+
+      .real-cover-content {
+        inset: 48px 34px 50px 54px;
+        grid-template-columns: 1fr;
+      }
+
+      .real-cover-title {
+        min-width: 190px;
+        min-height: 320px;
+        font-size: 42px;
+      }
+
+      .real-cover-subtitle {
+        display: none;
+      }
+
+      .real-cover-emboss {
+        right: 8%;
+        top: 10%;
+      }
+
+      .flip-sheet {
+        width: 100%;
+      }
+
+      .flip-sheet.next,
+      .flip-sheet.prev {
+        left: 0;
+        right: auto;
+        transform-origin: left center;
+        border-radius: 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .real-book-cover,
+      .flip-sheet.next,
+      .flip-sheet.prev,
+      .flip-sheet::before,
+      .book-stage.not-opened {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      body.opened .real-book-cover {
+        display: none;
+      }
+    }
+
+
+    /* 防止內容被裁切：書頁會依內容增高，表格與影片在小螢幕可安全顯示 */
+    .page > * {
+      max-width: 100%;
+    }
+
+    .table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .video-frame {
+      max-width: 100%;
+    }
+
+    .real-book-cover {
+      bottom: auto;
+    }
+
+    .book-stage {
+      padding-bottom: 12px;
+      position: relative;
+    }
+
+
+    /* 同步封面與書頁尺寸，避免封面固定高度造成穿幫 */
+    .book-shell.measuring .page,
+    .book-shell.measuring .real-book-cover {
+      height: auto !important;
+      min-height: var(--book-min-height) !important;
+    }
+
+    .book-shell.measuring {
+      height: auto !important;
+      min-height: var(--book-min-height) !important;
+    }
+
+    .page {
+      box-sizing: border-box;
+    }
+
+
+    /* 封面現在位於 book-shell 內部，和左右頁完全同尺寸 */
+    .book-stage.not-opened .left-page,
+    .book-stage.not-opened .right-page,
+    .book-stage.not-opened .book-spine,
+    .book-stage.not-opened .flip-sheet {
+      visibility: hidden;
+    }
+
+    .book-stage.not-opened .real-book-cover {
+      visibility: visible;
+    }
+
+    body.opened .book-stage .left-page,
+    body.opened .book-stage .right-page,
+    body.opened .book-stage .book-spine {
+      visibility: visible;
+    }
+
+    body.opened .real-book-cover {
+      visibility: hidden;
+    }
+
+
+    /* ===== 單面內容模式：每次只顯示一頁 ===== */
+    .book-shell {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .left-page,
+    .book-spine {
+      display: none !important;
+    }
+
+    .right-page {
+      border-radius: var(--book-radius);
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+
+    .right-page::before {
+      right: 0;
+    }
+
+    .book-stage.not-opened .right-page {
+      visibility: hidden;
+    }
+
+    body.opened .book-stage .right-page {
+      visibility: visible;
+    }
+
+    .real-book-cover {
+      border-radius: var(--book-radius);
+    }
+
+    .flip-sheet {
+      width: 100%;
+      left: 0;
+      right: auto;
+      transform-origin: left center;
+      border-radius: var(--book-radius);
+    }
+
+    .flip-sheet.next {
+      left: 0;
+      right: auto;
+      width: 100%;
+      transform-origin: left center;
+      border-radius: var(--book-radius);
+    }
+
+    .flip-sheet.prev {
+      left: 0;
+      right: auto;
+      width: 100%;
+      transform-origin: right center;
+      border-radius: var(--book-radius);
+    }
+
+    .flip-sheet.next .flip-face-front,
+    .flip-sheet.next .flip-face-back,
+    .flip-sheet.prev .flip-face-front,
+    .flip-sheet.prev .flip-face-back {
+      border-radius: var(--book-radius);
+    }
+
+    .flip-sheet.next::after {
+      left: -36px;
+      right: auto;
+    }
+
+    .flip-sheet.prev::after {
+      left: auto;
+      right: -36px;
+    }
+
+    .turn-hint {
+      max-width: 860px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="ink-bg" aria-hidden="true">
+    <span>一</span>
+    <span>丨</span>
+    <span>丿</span>
+    <span>丶</span>
+    <span>乛</span>
+    <span>*</span>
+  </div>
+  <div class="ink-splash-layer" id="inkSplashLayer" aria-hidden="true"></div>
+
+  <div class="open-screen" id="openScreen">
+    <div class="opening-book" id="openingBook" role="button" tabindex="0" aria-label="開啟習字帖網站">
+      <div class="opening-book-base"></div>
+      <div class="opening-cover">
+        <div class="cover-content">
+          <div class="cover-title">筆劃輸入法</div>
+          <div class="cover-seal">開卷</div>
+        </div>
+      </div>
+      <div class="open-tip">點一下翻開習字帖</div>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="logo" href="#" id="homeBtn">
+        <span class="logo-seal">筆</span>
+        <span>StrokeIME 筆劃輸入法</span>
+      </a>
+      <div class="nav-links">
+        <button data-go="0">首頁</button>
+        <button data-go="1">介紹</button>
+        <button data-go="2">拆解</button>
+        <button data-go="3">流程</button>
+        <button data-go="4">萬用字</button>
+        <button data-go="5">功能</button>
+        <button data-go="6">技術</button>
+        <button data-go="7">影片</button>
+        <a class="nav-download" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">下載</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app">
+    <div class="book-stage not-opened" id="bookStage">
+      <div class="book-shell" id="bookShell">
+      <div class="real-book-cover" id="realBookCover" role="button" tabindex="0" aria-label="翻開習字帖">
+        <div class="real-cover-content">
+          <div class="real-cover-title">筆劃輸入法</div>
+
+          <div class="real-cover-seal">開卷</div>
+          <div class="real-cover-tip">點一下翻開習字帖</div>
+        </div>
+      </div>
+        <div class="book-spine"></div>
+        <section class="page left-page" id="leftPage"></section>
+        <section class="page right-page" id="rightPage"></section>
+        <div class="flip-sheet" id="flipSheet">
+          <div class="flip-face flip-face-front">
+            <div class="flip-sheet-content" id="flipSheetFront"></div>
+          </div>
+          <div class="flip-face flip-face-back">
+            <div class="flip-sheet-back-content">
+              <div class="flip-back-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="turn-hint">點書頁右側翻到下一頁｜點書頁左側回上一頁｜也可使用鍵盤 ← →</div>
+      <div class="page-indicator" id="pageIndicator">第 1 / 9 頁</div>
+      <div class="drag-note">右鍵按下可看到墨水溢出效果｜右鍵長按並拖曳漂浮筆劃即可移動它們</div>
+      <div class="sound-note">翻頁與開書會播放紙張音效；若瀏覽器靜音，請先點一次頁面啟用聲音。</div>
+      <div class="controls" aria-hidden="true">
+        <button class="control-btn" id="prevBtn" tabindex="-1">上一頁</button>
+        <button class="control-btn" id="nextBtn" tabindex="-1">下一頁</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 StrokeIME 筆劃輸入法｜翻開習字帖風格專題網站
+  </footer>
+
+  <template id="page-0">
+    <div class="page-label">卷首</div>
+    <span class="seal">專題</span>
+    <div class="eyebrow">Calligraphy Input Method</div>
+    <h1><span class="brush-title">用筆劃，打出中文</span></h1>
+    <p>
+      StrokeIME 是一套以「橫、豎、撇、點、折」為核心的中文筆劃輸入法。
+      這個網站改成像翻開一本習字帖：每按一次都會有翻頁動畫，讓專題展示更有記憶點。
+    </p>
+    <div class="btn-group">
+      <a class="btn" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">下載 Demo</a>
+      <a class="btn secondary" href="https://youtu.be/j26vEbRiA9M" target="_blank" rel="noopener">觀看影片</a>
+    </div>
+    <div class="hero-tags">
+      <span>筆劃輸入</span>
+      <span>字形辨識</span>
+      <span>候選字排序</span>
+      <span>萬用字搜尋</span>
+    </div>
+
+    <div class="calligraphy-window">
+      <div class="window-head">
+        <span>StrokeIME Input Preview</span>
+        <span>墨跡模式</span>
+      </div>
+      <div class="ime-line">
+        <span>輸入碼</span>
+        <strong class="typing-code"></strong>
+      </div>
+      <div class="ime-line">
+        <span>筆劃</span>
+        <strong class="typing-strokes"></strong>
+      </div>
+      <div class="ime-line">
+        <span>規則</span>
+        <strong>依照筆劃順序搜尋字庫</strong>
+      </div>
+      <div class="candidate-strip">
+        <b>0 木</b>
+        <b>9 才</b>
+        <b>8 大</b>
+        <b>7 不</b>
+        <b>6 王</b>
+      </div>
+    </div>
+  </template>
+
+  <template id="page-1">
+    <div class="page-label">第一頁</div>
+    <span class="seal">介紹</span>
+    <div class="eyebrow">About Project</div>
+    <h2><span class="brush-title">專題介紹</span></h2>
+    <div class="grid-3">
+      <div class="ink-card">
+        <div class="ink-icon">目</div>
+        <h3>專題目標</h3>
+        <p>建立一套專屬中文筆劃輸入法，讓使用者透過簡單按鍵輸入筆劃，再由系統找出符合條件的中文字。</p>
+      </div>
+      <div class="ink-card">
+        <div class="ink-icon">劃</div>
+        <h3>核心概念</h3>
+        <p>將中文字拆解為筆劃編碼，透過字串比對與候選字清單，完成從筆劃輸入到中文字輸出的流程。</p>
+      </div>
+      <div class="ink-card">
+        <div class="ink-icon">用</div>
+        <h3>應用價值</h3>
+        <p>可應用於中文教育、查字工具與輸入輔助系統，也適合不熟悉發音輸入法的使用者使用。</p>
+      </div>
+    </div>
+  </template>
+
+  <template id="page-2">
+    <div class="page-label">第二頁</div>
+    <span class="seal">習字</span>
+    <div class="eyebrow">Character Decomposition</div>
+    <h2><span class="brush-title">中文字筆劃拆解</span></h2>
+    <div class="character-demo">
+      <div class="brush-character">
+        <div class="grid-lines"></div>
+        <div class="draw-character" aria-label="木字筆劃動畫">
+          <span class="stroke-line line-1"></span>
+          <span class="stroke-line line-2"></span>
+          <span class="stroke-line line-3"></span>
+          <span class="stroke-line line-4"></span>
+        </div>
+      </div>
+      <div class="decode-panel">
+        <div class="decode-row"><span>中文字</span><code>木</code></div>
+        <div class="decode-row"><span>筆劃拆解</span><code>一 丨 丿 丶</code></div>
+        <div class="decode-row"><span>按鍵對應</span><code>u i o j</code></div>
+        <div class="decode-row"><span>系統結果</span><code>顯示候選字</code></div>
+        <p>以習字帖方格呈現中文字拆解，讓使用者直覺理解：字形可以轉換成筆劃，筆劃可以轉換成鍵盤輸入。</p>
+      </div>
+    </div>
+  </template>
+
+  <template id="page-3">
+    <div class="page-label">第三頁</div>
+    <span class="seal">流程</span>
+    <div class="eyebrow">System Flow</div>
+    <h2><span class="brush-title">系統流程</span></h2>
+    <div class="flow-list">
+      <div class="flow-step"><b>一</b><div><h3>輸入筆劃</h3><p>使用者輸入 u、i、o、j、k 或 l。</p></div></div>
+      <div class="flow-step"><b>二</b><div><h3>轉換編碼</h3><p>程式將按鍵轉換為中文筆劃序列。</p></div></div>
+      <div class="flow-step"><b>三</b><div><h3>比對字庫</h3><p>根據輸入序列搜尋符合條件的中文字。</p></div></div>
+      <div class="flow-step"><b>四</b><div><h3>候選選字</h3><p>顯示候選字，使用者透過數字鍵或方向鍵選取。</p></div></div>
+    </div>
+  </template>
+
+  <template id="page-4">
+    <div class="page-label">第四頁</div>
+    <div class="wildcard-box">
+      <span class="seal">萬用</span>
+      <div class="eyebrow">Wildcard Search</div>
+      <h2><span class="brush-title">不知道完整筆劃？<br />用 l 代替未知筆劃</span></h2>
+      <p>
+        萬用字是 StrokeIME 的特色功能。當使用者只記得部分筆劃時，可以用 l 代表任意筆劃，
+        系統仍能列出可能候選字。
+      </p>
+      <div class="wild-flow">
+        <div><span>原本完整筆劃</span><code>u u u</code></div>
+        <div><span>不確定第二筆</span><code>u l u</code></div>
+        <div><span>系統解讀</span><code>橫 + 任意 + 橫</code></div>
+        <div><span>結果</span><code>列出符合條件的候選字</code></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="page-5">
+    <div class="page-label">第五頁</div>
+    <span class="seal">功能</span>
+    <div class="eyebrow">Features</div>
+    <h2><span class="brush-title">功能特色</span></h2>
+    <div class="feature-list">
+      <div class="feature-item"><h3>筆劃輸入</h3><p>使用 u、i、o、j、k 對應五種基本筆劃，依照中文字書寫順序輸入即可查找文字。</p></div>
+      <div class="feature-item"><h3>萬用字模糊搜尋</h3><p>使用 l 作為萬用字元，當使用者不確定某一筆時，可用 l 代替未知筆劃。</p></div>
+      <div class="feature-item"><h3>候選字顯示</h3><p>系統會根據輸入的筆劃序列，列出所有符合條件的中文字候選清單。</p></div>
+      <div class="feature-item"><h3>快速選字與翻頁</h3><p>候選字可使用數字鍵選取，也能透過上下鍵移動選擇或翻頁，提高輸入效率。</p></div>
+    </div>
+  </template>
+
+  <template id="page-6">
+    <div class="page-label">第六頁</div>
+    <span class="seal">技術</span>
+    <div class="eyebrow">Technology</div>
+    <h2><span class="brush-title">使用技術</span></h2>
+    <div class="table-wrap">
+      <table class="tech-table">
+        <thead>
+          <tr><th>技術項目</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>中文筆劃編碼</td><td>將中文字的筆劃順序轉換成 u、i、o、j、k、l 等鍵盤編碼。</td></tr>
+          <tr><td>字庫資料比對</td><td>根據使用者輸入的筆劃序列，與字庫中的中文字筆劃資料進行比對。</td></tr>
+          <tr><td>模糊搜尋</td><td>透過萬用字元 l 代替未知筆劃，提升查找候選字的彈性。</td></tr>
+          <tr><td>候選字排序</td><td>候選字依照 0、9、8…2、1 的順序顯示，使用者可透過數字鍵或方向鍵選取。</td></tr>
+          <tr><td>鍵盤事件處理</td><td>處理輸入、選字、翻頁與刪除等操作，提升整體使用流暢度。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  <template id="page-7">
+    <div class="page-label">第七頁</div>
+    <span class="seal">影片</span>
+    <div class="eyebrow">Demo Video</div>
+    <h2><span class="brush-title">專題展示影片</span></h2>
+    <p>
+      影片可直接在網站中觀看，也可以點擊按鈕開啟 YouTube 原始連結。
+      這一頁以翻頁習字帖形式承接展示影片，讓網站更像完整的專題展覽作品。
+    </p>
+    <div class="btn-group">
+      <a class="btn" href="https://youtu.be/j26vEbRiA9M" target="_blank" rel="noopener">在 YouTube 開啟</a>
+    </div>
+    <div class="video-frame">
+      <iframe
+        src="https://www.youtube.com/embed/j26vEbRiA9M"
+        title="筆劃輸入法專題展示影片"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </template>
+
+  <template id="page-8">
+    <div class="page-label">終頁</div>
+    <span class="seal">下載</span>
+    <div class="eyebrow">Download & Team</div>
+    <h2><span class="brush-title">下載與團隊分工</span></h2>
+
+    <div class="table-wrap">
+      <table class="team-table">
+        <thead>
+          <tr><th>組員</th><th>負責項目</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>謝家華</td><td>行程規劃、註冊電腦程式設計、專題發起人</td></tr>
+          <tr><td>朱俊祥</td><td>入字邏輯的程式設計</td></tr>
+          <tr><td>曾梓翔</td><td>PPT 及海報設計、美術監督</td></tr>
+          <tr><td>袁靖傑</td><td>網頁設計、網頁介紹</td></tr>
+          <tr><td>鄭軒濬</td><td>網頁設計、網頁介紹、網頁撰寫</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="download-panel">
+      <h3>下載 StrokeIME Demo</h3>
+      <p>點擊下方按鈕即可下載 StrokeIME Demo 壓縮檔，進行電腦端試用與展示。</p>
+      <br />
+      <a class="btn" href="https://github.com/mr0handsome/StrokeIME_NEW/releases/download/v1.0.1/StrokeIMEDemo.zip" target="_blank" rel="noopener">立即下載 StrokeIMEDemo.zip</a>
+    </div>
+  </template>
+
+  <script>
+    const totalPages = 9;
+    let currentPage = 0;
+    let isFlipping = false;
+    let rightMouseDown = false;
+    let activeStroke = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let splashTimer = null;
+    let hoverTargetStroke = null;
+
+    const leftPage = document.getElementById("leftPage");
+    const rightPage = document.getElementById("rightPage");
+    const bookShell = document.getElementById("bookShell");
+    const pageIndicator = document.getElementById("pageIndicator");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const navButtons = document.querySelectorAll("[data-go]");
+    const openScreen = document.getElementById("openScreen");
+    const openingBook = document.getElementById("openingBook");
+    const homeBtn = document.getElementById("homeBtn");
+    const inkSplashLayer = document.getElementById("inkSplashLayer");
+    const floatingStrokes = document.querySelectorAll(".ink-bg span");
+    const bookStage = document.getElementById("bookStage");
+    const realBookCover = document.getElementById("realBookCover");
+    const flipSheet = document.getElementById("flipSheet");
+    const flipSheetFront = document.getElementById("flipSheetFront");
+
+    let audioCtx = null;
+
+    function getTemplate(index) {
+      const template = document.getElementById(`page-${index}`);
+      return template ? template.innerHTML : "";
+    }
+
+
+    document.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+    });
+
+    function createSplash(x, y, big = false) {
+      if (!inkSplashLayer) return;
+      const splash = document.createElement("span");
+      splash.className = "ink-splash" + (big ? " big" : "");
+      splash.style.left = `${x}px`;
+      splash.style.top = `${y}px`;
+      splash.style.transform = `scale(0.1) rotate(${Math.random() * 20 - 10}deg)`;
+      inkSplashLayer.appendChild(splash);
+      setTimeout(() => splash.remove(), big ? 1200 : 950);
+    }
+
+    function beginSplashTrail(x, y) {
+      document.body.classList.add("pen-pressing");
+      createSplash(x, y, true);
+      clearInterval(splashTimer);
+      splashTimer = setInterval(() => {
+        createSplash(
+          x + (Math.random() * 20 - 10),
+          y + (Math.random() * 20 - 10),
+          false
+        );
+      }, 170);
+    }
+
+    function stopSplashTrail() {
+      document.body.classList.remove("pen-pressing");
+      clearInterval(splashTimer);
+      splashTimer = null;
+    }
+
+    function setStrokePosition(el, x, y) {
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
+
+    function startStrokeDrag(target, clientX, clientY) {
+      activeStroke = target;
+      const rect = target.getBoundingClientRect();
+      dragOffsetX = clientX - rect.left;
+      dragOffsetY = clientY - rect.top;
+      target.classList.add("dragging");
+    }
+
+    function stopStrokeDrag() {
+      if (activeStroke) {
+        activeStroke.classList.remove("dragging");
+      }
+      activeStroke = null;
+    }
+
+    floatingStrokes.forEach((stroke) => {
+      stroke.addEventListener("mousedown", (event) => {
+        if (event.button !== 2) return;
+        event.preventDefault();
+        rightMouseDown = true;
+        hoverTargetStroke = stroke;
+        beginSplashTrail(event.clientX, event.clientY);
+        startStrokeDrag(stroke, event.clientX, event.clientY);
+      });
+    });
+
+
+
+    function ensureAudio() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return null;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        return audioCtx;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function playPaperSound(type = "flip") {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const duration = type === "open" ? 0.72 : 0.48;
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        const t = i / bufferSize;
+        const noise = (Math.random() * 2 - 1);
+        const envelope = type === "open"
+          ? Math.sin(Math.PI * t) * Math.pow(1 - t, 0.18)
+          : Math.sin(Math.PI * t) * Math.pow(1 - t, 0.55);
+        const flutter = Math.sin(80 * t) * 0.12 + Math.sin(210 * t) * 0.05;
+        data[i] = noise * envelope * (0.22 + flutter);
+      }
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(type === "open" ? 950 : 1350, now);
+      filter.Q.setValueAtTime(0.72, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(type === "open" ? 0.34 : 0.24, now + 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(now);
+      source.stop(now + duration);
+    }
+
+
+
+    function syncBookHeight() {
+      if (!bookShell || !leftPage || !rightPage) return;
+
+      bookShell.classList.add("measuring");
+
+      requestAnimationFrame(() => {
+        const isMobile = window.matchMedia("(max-width: 920px)").matches;
+        const minHeight = 720;
+
+        const rightHeight = rightPage.scrollHeight;
+        const targetHeight = Math.max(minHeight, rightHeight);
+
+        bookShell.style.setProperty("--synced-book-height", `${targetHeight}px`);
+        if (bookStage) {
+          bookStage.style.setProperty("--synced-book-height", `${targetHeight}px`);
+        }
+        bookShell.classList.remove("measuring");
+      });
+    }
+
+
+    function renderPages() {
+      leftPage.innerHTML = "";
+      rightPage.innerHTML = getTemplate(currentPage);
+
+      pageIndicator.textContent = `目前頁面：第 ${currentPage + 1} / ${totalPages} 頁`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage >= totalPages - 1;
+      syncBookHeight();
+    }
+
+    function goToPage(target, direction = "next") {
+      target = Math.max(0, Math.min(totalPages - 1, target));
+      if (target === currentPage || isFlipping) return;
+      if (!document.body.classList.contains("opened")) return;
+
+      isFlipping = true;
+      playPaperSound("flip");
+
+      const flipSourceIndex = currentPage;
+
+      flipSheetFront.innerHTML = getTemplate(flipSourceIndex);
+      flipSheet.className = "flip-sheet " + (direction === "prev" ? "prev" : "next");
+
+      setTimeout(() => {
+        flipSheet.classList.add("hide-front");
+      }, 350);
+
+      setTimeout(() => {
+        currentPage = target;
+        renderPages();
+      }, 540);
+
+      setTimeout(() => {
+        flipSheet.className = "flip-sheet";
+        flipSheetFront.innerHTML = "";
+        isFlipping = false;
+      }, 1130);
+    }
+
+    function nextPage() {
+      goToPage(currentPage + 1, "next");
+    }
+
+    function prevPage() {
+      goToPage(currentPage - 1, "prev");
+    }
+
+    function openBook() {
+      if (document.body.classList.contains("opened")) return;
+      syncBookHeight();
+      playPaperSound("open");
+      document.body.classList.add("opening");
+      if (bookStage) bookStage.classList.remove("not-opened");
+      requestAnimationFrame(() => {
+        document.body.classList.add("opened");
+        syncBookHeight();
+      });
+    }
+
+    if (nextBtn) nextBtn.addEventListener("click", nextPage);
+    if (prevBtn) prevBtn.addEventListener("click", prevPage);
+
+    rightPage.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, iframe")) return;
+      const rect = rightPage.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      if (clickX < rect.width / 2) {
+        prevPage();
+      } else {
+        nextPage();
+      }
+    });
+
+    leftPage.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, iframe")) return;
+      prevPage();
+    });
+
+    document.addEventListener("mousedown", (event) => {
+      if (event.button !== 2) return;
+      rightMouseDown = true;
+      beginSplashTrail(event.clientX, event.clientY);
+
+      const stroke = event.target.closest(".ink-bg span");
+      if (stroke) {
+        startStrokeDrag(stroke, event.clientX, event.clientY);
+      }
+    });
+
+    document.addEventListener("mousemove", (event) => {
+      if (!rightMouseDown) return;
+
+      if (splashTimer) {
+        createSplash(
+          event.clientX + (Math.random() * 10 - 5),
+          event.clientY + (Math.random() * 10 - 5),
+          false
+        );
+      }
+
+      if (activeStroke) {
+        const minX = 0;
+        const minY = 0;
+        const maxX = window.innerWidth - activeStroke.offsetWidth;
+        const maxY = window.innerHeight - activeStroke.offsetHeight;
+        const nextX = Math.max(minX, Math.min(maxX, event.clientX - dragOffsetX));
+        const nextY = Math.max(minY, Math.min(maxY, event.clientY - dragOffsetY));
+        setStrokePosition(activeStroke, nextX, nextY);
+      }
+    });
+
+    document.addEventListener("mouseup", (event) => {
+      if (event.button !== 2) return;
+      rightMouseDown = false;
+      stopSplashTrail();
+      stopStrokeDrag();
+    });
+
+    window.addEventListener("blur", () => {
+      rightMouseDown = false;
+      stopSplashTrail();
+      stopStrokeDrag();
+    });
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = Number(btn.dataset.go);
+        goToPage(target, target < currentPage ? "prev" : "next");
+      });
+    });
+
+    homeBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      goToPage(0, "prev");
+    });
+
+    const openTargets = [openingBook, realBookCover].filter(Boolean);
+    openTargets.forEach((target) => {
+      target.addEventListener("click", openBook);
+      target.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openBook();
+        }
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!document.body.classList.contains("opened")) {
+        if (event.key === "Enter" || event.key === " ") {
+          openBook();
+        }
+        return;
+      }
+
+      if (event.key === "ArrowRight") nextPage();
+      if (event.key === "ArrowLeft") prevPage();
+    });
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        renderPages();
+        syncBookHeight();
+      }, 120);
+    });
+
+    renderPages();
+    syncBookHeight();
+  </script>
+</body>
+</html>
